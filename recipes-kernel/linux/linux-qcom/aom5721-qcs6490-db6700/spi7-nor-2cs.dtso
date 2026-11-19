@@ -1,0 +1,42 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&tlmm {
+	qcs6490_spi7_cs0: qcs6490-spi7-cs0-state {
+		pins = "gpio31";
+		function = "gpio";
+		drive-strength = <2>;
+		output-high;
+		bias-pull-up;
+	};
+
+	qcs6490_spi7_cs1: qcs6490-spi7-cs1-state {
+		pins = "gpio6";
+		function = "gpio";
+		drive-strength = <2>;
+		output-high;
+		bias-pull-up;
+	};
+};
+
+&spi7 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&qup_spi7_data_clk>, <&qcs6490_spi7_cs0>,
+		    <&qcs6490_spi7_cs1>;
+	cs-gpios = <&tlmm 31 GPIO_ACTIVE_LOW>, <&tlmm 6 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <10000000>;
+	};
+
+	flash@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
+		spi-max-frequency = <10000000>;
+	};
+};

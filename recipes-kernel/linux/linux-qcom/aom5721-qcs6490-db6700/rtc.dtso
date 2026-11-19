@@ -1,0 +1,30 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&{/aliases} { rtc0 = &rx8900; };
+
+&tlmm {
+	rx8900_irq_pin: rx8900-irq-pin {
+		pins = "gpio34";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	rx8900: rtc@32 {
+		compatible = "epson,rx8900";
+		reg = <0x32>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&rx8900_irq_pin>;
+		interrupts-extended = <&tlmm 34 IRQ_TYPE_EDGE_FALLING>;
+	};
+};

@@ -1,0 +1,20 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+
+// USB HS PHY vdda33
+&vreg_l2b_3p072 {
+       regulator-min-microvolt = <3000000>;
+       regulator-max-microvolt = <3010000>;
+};
+
+// UFS vcc-supply, UFS 3.x
+&vreg_l7b_2p952 {
+       regulator-min-microvolt = <2500000>;
+       regulator-max-microvolt = <2510000>;
+
+       regulator-allow-set-load;
+       regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+                                  RPMH_REGULATOR_MODE_HPM>;
+};

@@ -1,0 +1,8 @@
+header:
+  version: 14
+
+repos:
+  meta-modular-bsp-qcom:
+    path: meta-modular-bsp-qcom
+    layers:
+      .:

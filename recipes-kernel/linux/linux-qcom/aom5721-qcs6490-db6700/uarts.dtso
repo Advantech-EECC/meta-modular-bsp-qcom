@@ -1,0 +1,80 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+// QUP0 SE6 -> SMARC UART0/COM0 (4-wire)
+
+&qup_uart6_cts {
+	bias-bus-hold;
+};
+
+&qup_uart6_rts {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart6_tx {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart6_rx {
+	bias-pull-up;
+};
+
+&tlmm {
+	qup_uart6_sleep_cts: qup-uart6-sleep-cts-state {
+		pins = "gpio24";
+		function = "gpio";
+		bias-bus-hold;
+	};
+
+	qup_uart6_sleep_rts: qup-uart6-sleep-rts-state {
+		pins = "gpio25";
+		function = "gpio";
+		bias-pull-down;
+	};
+
+	qup_uart6_sleep_tx: qup-uart6-sleep-tx-state {
+		pins = "gpio26";
+		function = "gpio";
+		bias-pull-up;
+	};
+
+	qup_uart6_sleep_rx: qup-uart6-sleep-rx-state {
+		pins = "gpio27";
+		function = "gpio";
+		bias-pull-up;
+	};
+};
+
+&uart6 {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&qup_uart6_cts>, <&qup_uart6_rts>,
+		    <&qup_uart6_tx>, <&qup_uart6_rx>;
+	pinctrl-1 = <&qup_uart6_sleep_cts>, <&qup_uart6_sleep_rts>,
+		    <&qup_uart6_sleep_tx>, <&qup_uart6_sleep_rx>;
+	interrupts-extended = <&intc GIC_SPI 607 IRQ_TYPE_LEVEL_HIGH>,
+			      <&tlmm 27 IRQ_TYPE_EDGE_FALLING>;
+	status = "okay";
+};
+
+// QUP1 SE2 -> SMARC UART2/COM2 (4-wire)
+
+&uart10 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&qup_uart10_cts>, <&qup_uart10_rts>,
+		    <&qup_uart10_tx>, <&qup_uart10_rx>;
+	status = "okay";
+};
+
+// QUP1 SE3 -> SMARC UART1/COM1 (2-wire)
+
+&uart11 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&qup_uart11_tx>, <&qup_uart11_rx>;
+	status = "okay";
+};

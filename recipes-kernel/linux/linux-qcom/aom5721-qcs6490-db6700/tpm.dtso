@@ -1,0 +1,14 @@
+/dts-v1/;
+/plugin/;
+
+&i2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	st33htph: st33htph@2e {
+		compatible = "infineon,slb9673";
+		status = "okay";
+		reg = <0x2e>;
+		clock-frequency = <100000>;
+	};
+};

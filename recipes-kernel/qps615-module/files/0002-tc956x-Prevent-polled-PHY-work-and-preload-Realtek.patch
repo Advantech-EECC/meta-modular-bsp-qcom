@@ -1,0 +1,99 @@
+Fix for the second Eth (rgmii-id): link polling + Realtek preload
+
+Upstream-Status: Inappropriate
+---
+diff --git a/drivers/net/ethernet/toshiba/tc956x/tc956xmac_inc.h b/drivers/net/ethernet/toshiba/tc956x/tc956xmac_inc.h
+--- a/drivers/net/ethernet/toshiba/tc956x/tc956xmac_inc.h
++++ b/drivers/net/ethernet/toshiba/tc956x/tc956xmac_inc.h
+@@ -74,9 +74,9 @@
+ //#define TC956X_PCIE_DISABLE_DSP1 /*Enable this macro to disable DSP1 port*/
+ //#define TC956X_PCIE_DISABLE_DSP2 /*Enable this macro to disable DSP2 port*/
+ /* Enable for PORT0 interrupt mode, if commented polling mode */
+-#define TC956X_PHY_INTERRUPT_MODE_EMAC0
++/* #define TC956X_PHY_INTERRUPT_MODE_EMAC0 */
+ /* Enable for PORT1 interrupt mode, if commented polling mode */
+-#define TC956X_PHY_INTERRUPT_MODE_EMAC1
++/* #define TC956X_PHY_INTERRUPT_MODE_EMAC1 */
+ 
+ #ifdef TC956X
+ //#define TC956X_SRIOV_PF		/* Enable TC956X SRIOV Configuration */
+diff --git a/drivers/net/ethernet/toshiba/tc956x/tc956x_msigen.c b/drivers/net/ethernet/toshiba/tc956x/tc956x_msigen.c
+--- a/drivers/net/ethernet/toshiba/tc956x/tc956x_msigen.c
++++ b/drivers/net/ethernet/toshiba/tc956x/tc956x_msigen.c
+@@ -125,8 +125,9 @@
+ 				mask_val |= (1 << (MSI_INT_RX_CH0 + chan));
+ 		}
+ #ifdef TC956X_SRIOV_PF
+-		if (priv->dev->phydev != NULL) {
+-			/* PHY MSI interrupt enabled */
++		if (priv->plat->phy_interrupt_mode && priv->dev->phydev &&
++		    priv->dev->phydev->irq == PHY_MAC_INTERRUPT) {
++			/* Enable PHY MSI only when PHY IRQ work is initialized. */
+ 			mask_val &= ~(1 << MSI_INT_EXT_PHY);
+ 		} else
+ 			mask_val |= (1 << MSI_INT_EXT_PHY); /* Disable PHY interrupt on PHY absence */
+diff --git a/drivers/net/ethernet/toshiba/tc956x/tc956xmac_main.c b/drivers/net/ethernet/toshiba/tc956x/tc956xmac_main.c
+--- a/drivers/net/ethernet/toshiba/tc956x/tc956xmac_main.c
++++ b/drivers/net/ethernet/toshiba/tc956x/tc956xmac_main.c
+@@ -9924,12 +9924,17 @@
+ 		/* Queue the work in system_wq */
+ 		if (priv->tc956x_port_pm_suspend == true) {
+ 			KPRINT_INFO("%s : (Do not queue PHY Work during suspend. Set WOL Interrupt flag)\n", __func__);
+-			priv->tc956xmac_pm_wol_interrupt = true;
++			if (priv->plat->phy_interrupt_mode && priv->dev->phydev &&
++			    priv->dev->phydev->irq == PHY_MAC_INTERRUPT)
++				priv->tc956xmac_pm_wol_interrupt = true;
+ 		} else {
+ 			struct phy_device *phydev;
+ 			phydev = mdiobus_get_phy(priv->mii, priv->plat->phy_addr);
+-			KPRINT_INFO("%s : (Queue PHY Work.)\n", __func__);
+-			queue_work(system_wq, &priv->emac_phy_work);
++			if (priv->plat->phy_interrupt_mode && phydev &&
++			    phydev->irq == PHY_MAC_INTERRUPT) {
++				KPRINT_INFO("%s : (Queue PHY Work.)\n", __func__);
++				queue_work(system_wq, &priv->emac_phy_work);
++			}
+ 		}
+ 		/* phy_mac_interrupt(priv->dev->phydev); */
+ 		/* MSI_OUT_EN: Reading */
+@@ -10242,13 +10247,18 @@
+ 		/* Queue the work in system_wq */
+ 		if (priv->tc956x_port_pm_suspend == true) {
+ 			KPRINT_INFO("%s : (Do not queue PHY Work during suspend. Set WOL Interrupt flag)\n", __func__);
+-			priv->tc956xmac_pm_wol_interrupt = true;
++			if (priv->plat->phy_interrupt_mode && priv->dev->phydev &&
++			    priv->dev->phydev->irq == PHY_MAC_INTERRUPT)
++				priv->tc956xmac_pm_wol_interrupt = true;
+ 		} else {
+ 			struct phy_device *phydev;
+ 			phydev = mdiobus_get_phy(priv->mii, priv->plat->phy_addr);
+ 
+-			KPRINT_INFO("%s : (Queue PHY Work.)\n", __func__);
+-			queue_work(system_wq, &priv->emac_phy_work);
++			if (priv->plat->phy_interrupt_mode && phydev &&
++			    phydev->irq == PHY_MAC_INTERRUPT) {
++				KPRINT_INFO("%s : (Queue PHY Work.)\n", __func__);
++				queue_work(system_wq, &priv->emac_phy_work);
++			}
+ 		}
+ 		/* phy_mac_interrupt(priv->dev->phydev); */
+ 		/* MSI_OUT_EN: Reading */
+diff --git a/drivers/net/ethernet/toshiba/tc956x/tc956x_pci.c b/drivers/net/ethernet/toshiba/tc956x/tc956x_pci.c
+--- a/drivers/net/ethernet/toshiba/tc956x/tc956x_pci.c
++++ b/drivers/net/ethernet/toshiba/tc956x/tc956x_pci.c
+@@ -233,6 +233,7 @@
+ 
+ #include <linux/clk-provider.h>
+ #include <linux/pci.h>
++#include <linux/module.h>
+ #include <linux/dmi.h>
+ #include <linux/firmware.h>
+ #include <linux/version.h>
+@@ -5085,6 +5086,7 @@
+ #endif
+ 
+ #endif
++MODULE_SOFTDEP("pre: realtek");
+ MODULE_DESCRIPTION("TC956X PCI Express Ethernet Network Driver");
+ MODULE_AUTHOR("Toshiba Electronic Devices & Storage Corporation");
+ MODULE_LICENSE("GPL v2");

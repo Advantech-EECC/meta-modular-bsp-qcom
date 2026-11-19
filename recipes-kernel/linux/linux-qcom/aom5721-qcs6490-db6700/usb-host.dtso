@@ -1,0 +1,13 @@
+/dts-v1/;
+/plugin/;
+
+// This enables the two USB-A ports in the AOM-DB6700 carrier
+
+&usb_2 {
+	dr_mode = "host";
+	status = "okay";
+};
+
+&usb_2_hsphy {
+	status = "okay";
+};

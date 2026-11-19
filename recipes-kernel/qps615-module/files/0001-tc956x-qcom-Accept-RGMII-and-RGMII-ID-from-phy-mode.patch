@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Darren Huang" <darren.huang@advantech.com.tw>
+Date: Wed, 30 Sep 2026 12:00:00 +0800
+Subject: [PATCH] tc956x: qcom: Accept RGMII and RGMII-ID from phy-mode
+
+tc956x_platform_port_interface_overlay() only maps phy-mode "sgmii"
+and rejects everything else, so a port wired to an RGMII PHY can only
+be configured through the macX_interface module parameter array, which
+is indexed by probe order and shared by every port not listed in
+tc956x_eth_ports_bdf.
+
+AOM-2721 eMAC1 drives a Realtek RTL8211F over RGMII with PHY-side
+delays. Left at the eMAC1 default (SGMII) the PHY links up but no
+frame is received. Map "rgmii" and "rgmii-id" as well, with the same
+MDC clock and clause-22 access as the port 1 defaults.
+
+Upstream-Status: Inappropriate [vendor specific]
+---
+ drivers/net/ethernet/toshiba/tc956x/tc956x_qcom.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/net/ethernet/toshiba/tc956x/tc956x_qcom.c b/drivers/net/ethernet/toshiba/tc956x/tc956x_qcom.c
+index c1ef1cb..7d5d954 100644
+--- a/drivers/net/ethernet/toshiba/tc956x/tc956x_qcom.c
++++ b/drivers/net/ethernet/toshiba/tc956x/tc956x_qcom.c
+@@ -110,6 +110,16 @@ int tc956x_platform_port_interface_overlay(struct device *dev,
+ 		res->c45_state = false;
+ 		res->mdc_clk = TC956XMAC_XGMAC_MDC_CSR_62;
+ 		break;
++	case PHY_INTERFACE_MODE_RGMII:
++		res->port_interface = ENABLE_RGMII_INTERFACE;
++		res->c45_state = false;
++		res->mdc_clk = TC956XMAC_XGMAC_MDC_CSR_62;
++		break;
++	case PHY_INTERFACE_MODE_RGMII_ID:
++		res->port_interface = ENABLE_RGMII_ID_INTERFACE;
++		res->c45_state = false;
++		res->mdc_clk = TC956XMAC_XGMAC_MDC_CSR_62;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}

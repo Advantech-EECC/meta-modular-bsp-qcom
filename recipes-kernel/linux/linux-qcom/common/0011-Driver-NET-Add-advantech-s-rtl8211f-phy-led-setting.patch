@@ -1,0 +1,40 @@
+From 33480963b2bdbf5c22657b75dc5e51f0843e6110 Mon Sep 17 00:00:00 2001
+From: Darren Huang <darren.huang@advantech.com.tw>
+Date: Wed, 24 Jun 2026 16:31:08 +0800
+Subject: [PATCH] Driver: NET: Add advantech's rtl8211f phy led setting
+
+20261118: adapted to wrynose
+
+Upstream-Status: Inappropriate
+---
+ drivers/net/phy/realtek/realtek_main.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/net/phy/realtek/realtek_main.c b/drivers/net/phy/realtek/realtek_main.c
+index 7c3d277efaf0..45f535b5ad72 100644
+--- a/drivers/net/phy/realtek/realtek_main.c
++++ b/drivers/net/phy/realtek/realtek_main.c
+@@ -669,11 +669,23 @@ static int rtl8211f_config_phy_eee(struct phy_device *phydev)
+ 				RTL8211F_PHYCR2_PHY_EEE_ENABLE, 0);
+ }
+ 
++static void rtl8211f_phy_fixup(struct phy_device *dev)
++{
++       msleep(200);
++       phy_write(dev, 0x1f, 0x0d04);
++       /*PHY LED OK*/
++       phy_write(dev, 0x10, 0xa050);
++       phy_write(dev, 0x11, 0x0000);
++       phy_write(dev, 0x1f, 0x0000);
++}
++
+ static int rtl8211f_config_init(struct phy_device *phydev)
+ {
+ 	struct device *dev = &phydev->mdio.dev;
+ 	int ret;
+ 
++	rtl8211f_phy_fixup(phydev);
++
+ 	ret = rtl8211f_config_aldps(phydev);
+ 	if (ret) {
+ 		dev_err(dev, "aldps mode configuration failed: %pe\n",

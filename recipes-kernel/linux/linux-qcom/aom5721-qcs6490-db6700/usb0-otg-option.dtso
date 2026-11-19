@@ -1,0 +1,17 @@
+/dts-v1/;
+/plugin/;
+
+// SMARC Micro-USB OTG mode
+
+&usb_1 {
+    dr_mode = "otg";
+    status = "okay";
+};
+
+&usb_1_hsphy {
+    status = "okay";
+};
+
+&usb_1_qmpphy {
+    status = "okay";
+};

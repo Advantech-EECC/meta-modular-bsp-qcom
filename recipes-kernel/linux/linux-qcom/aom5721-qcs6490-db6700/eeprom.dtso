@@ -1,0 +1,56 @@
+/dts-v1/;
+/plugin/;
+
+&i2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	eeprom1: 24c64@50 {
+		compatible = "atmel,24c64";
+		reg = <0x50>;
+
+		nvmem-layout {
+			compatible = "fixed-layout";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			mac_addr1: mac-addr@0 {
+				reg = <0x200 0x6>;
+			};
+			mac_addr2: mac-addr@6 {
+				reg = <0x206 0x6>;
+			};
+		};
+	};
+
+	eeprom3: eeprom@53 {
+	    compatible = "atmel,24c02";
+	    reg = <0x53>;
+	};
+};
+
+&i2c3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	eeprom2: 24c64@57 {
+		compatible = "atmel,24c64";
+		reg = <0x57>;
+	};
+};
+
+&pcie1_port0 {
+	pcie@0,0 {
+		pcie@3,0 {
+			pci@0,0 {
+				nvmem-cells = <&mac_addr1>;
+				nvmem-cell-names = "mac-address";
+			};
+
+			pci@0,1 {
+				nvmem-cells = <&mac_addr2>;
+				nvmem-cell-names = "mac-address";
+			};
+		};
+	};
+};
