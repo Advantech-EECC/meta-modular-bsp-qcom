@@ -1,0 +1,22 @@
+/dts-v1/;
+/plugin/;
+
+&i2c1 {
+    status = "okay";
+    aom_pm_expander: gpio@27 {
+        compatible = "nxp,pca9555";
+        reg = <0x27>;
+        gpio-controller;
+        #gpio-cells = <2>;
+    };
+};
+
+&i2c3 {
+    status = "okay";
+    aom_gp_expander: gpio@27 {
+        compatible = "nxp,pca9555";
+        reg = <0x27>;
+        gpio-controller;
+        #gpio-cells = <2>;
+    };
+};

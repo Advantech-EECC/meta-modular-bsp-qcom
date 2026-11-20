@@ -1,0 +1,79 @@
+/dts-v1/;
+
+#include "qcs6490-rb3gen2.dts"
+
+/ {
+	model = "Advantech AOM-5721 QCS6490 A1 + AOM-DB6700 A1";
+
+	qcom,oem-id = <0x04>;
+
+	board {
+		board-type = "AOM-5721 A1\n";
+	};
+
+	aliases {
+		serial1 = &uart6;
+		serial2 = &uart10;
+		serial3 = &uart11;
+		rtc1 = &pmk8350_rtc;
+	};
+
+	dp-connector { status = "disabled"; };
+	hdmi-connector { status = "disabled"; };
+	pmic-glink { status = "disabled"; };
+	regulator-pcie0-1p05v { status = "disabled"; };
+	regulator-pcie0-3p3v-dual { status = "disabled"; };
+	wcn6750-pmu { status = "disabled"; };
+};
+
+&i2c0 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+&i2c7 { status = "disabled"; };
+&i2c12 { status = "disabled"; };
+&i2c1 {
+	typec-mux@1c { status = "disabled"; };
+	i2c-mux@71 { status = "disabled"; };
+	typec-mux@42 { status = "disabled"; };
+	typec-retimer@1c { status = "disabled"; };
+};
+&lt9611_codec { status = "disabled"; };
+&lt9611_a { /delete-property/ remote-endpoint; };
+&lt9611_out { /delete-property/ remote-endpoint; };
+&hdmi_con { /delete-property/ remote-endpoint; };
+&mdss_dsi0_out { /delete-property/ remote-endpoint; };
+&mdss_dsi { status = "disabled"; };
+&mdss_dsi_phy { status = "disabled"; };
+&mdss_edp { status = "disabled"; };
+&mdss_edp_phy { status = "disabled"; };
+&mdss_dp { status = "disabled"; };
+&pcie1_port0 {
+    pcie@0,0 { pcie@2,0 { usb-controller@0,0 { status = "disabled"; }; }; };
+};
+&remoteproc_mpss { status = "disabled"; };
+&remoteproc_wpss { status = "disabled"; };
+&sound {
+	/delete-property/ audio-routing;
+	/delete-property/ pinctrl-0;
+	/delete-property/ pinctrl-names;
+	status = "disabled";
+
+	wsa-dai-link { status = "disabled"; };
+	va-dai-link { status = "disabled"; };
+	mi2s1-playback-dai-link { status = "disabled"; };
+	dp-dai-link { status = "disabled"; };
+};
+&swr0 { status = "disabled"; };
+&swr1 { status = "disabled"; };
+&swr2 { status = "disabled"; };
+&spi3 { status = "disabled"; };
+&spmi_bus {
+       pmic@8 { status = "disabled"; };
+       pmic@9 { status = "disabled"; };
+};
+&uart7 { status = "disabled"; };
+&uart12 { status = "disabled"; };
+&vreg_pcie0_3p3 { status = "disabled"; };
+&vreg_pcie0_1p05 { status = "disabled"; };
+&wifi { status = "disabled"; };

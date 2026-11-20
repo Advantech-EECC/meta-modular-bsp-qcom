@@ -1,0 +1,97 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+// Important: set J1 pins to 1-2 in AOM-DB6700 for enabling the HDMI
+
+&{/hdmi-connector} {
+	status = "okay";
+};
+
+&hdmi_con {
+	remote-endpoint = <&lt9611_out_2>;
+};
+
+&mdss_dsi {
+	status = "okay";
+};
+
+&mdss_dsi_phy {
+	status = "okay";
+};
+
+&mdss_dsi0_out {
+	remote-endpoint = <&lt9611_a_2>;
+};
+
+&tlmm {
+	lt9611_irq_pin: lt9611-irq-state {
+		pins = "gpio102";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	lt9611_rst_pin_2: lt9611-rst-state {
+		pins = "gpio103";
+		function = "gpio";
+		drive-strength = <2>;
+		output-high;
+		bias-pull-down;
+	};
+};
+
+&i2c1 {
+	clock-frequency = <400000>;
+	status = "okay";
+
+	lt9611_codec_2: hdmi-bridge@2b {
+		compatible = "lontium,lt9611uxc";
+		reg = <0x2b>;
+		#sound-dai-cells = <1>;
+
+		interrupts-extended = <&tlmm 102 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&tlmm 103 GPIO_ACTIVE_HIGH>;
+
+		vdd-supply = <&lt9611_1v2>;
+		vcc-supply = <&vreg_l11c_2p8>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&lt9611_irq_pin>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				lt9611_a_2: endpoint {
+					remote-endpoint = <&mdss_dsi0_out>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+				lt9611_out_2: endpoint {
+					remote-endpoint = <&hdmi_con>;
+				};
+			};
+		};
+	};
+};
+
+&sound {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mi2s1_data0>, <&mi2s1_sclk>, <&mi2s1_ws>;
+	status = "okay";
+
+	mi2s1-playback-dai-link {
+		status = "okay";
+
+		codec {
+			sound-dai = <&lt9611_codec_2 0>;
+		};
+	};
+};

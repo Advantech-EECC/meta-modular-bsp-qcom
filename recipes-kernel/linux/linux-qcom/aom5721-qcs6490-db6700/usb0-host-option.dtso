@@ -1,0 +1,22 @@
+/dts-v1/;
+/plugin/;
+
+// SMARC Micro-USB host mode
+
+&tlmm {
+    otg_usb_default: otg-usb-default-state {
+        pins = "gpio86";
+        function = "gpio";
+        drive-strength = <2>;
+        output-high;
+        bias-pull-up;
+    };
+};
+&usb_1 {
+	pinctrl-0 = <&otg_usb_default>;
+	pinctrl-names = "default";
+	role-switch-default-mode = "host";
+	status = "okay";
+};
+&usb_1_hsphy { status = "okay"; };
+&usb_1_qmpphy { status = "okay"; };

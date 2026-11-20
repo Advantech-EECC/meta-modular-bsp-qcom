@@ -1,0 +1,50 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&tlmm {
+	adv_eth0_wol: adv-eth0-wol-state {
+		pins = "gpio130";
+		function = "gpio";
+		bias-disable;
+	};
+
+	adv_eth1_wol: adv-eth1-wol-state {
+		pins = "gpio131";
+		function = "gpio";
+		bias-disable;
+	};
+};
+
+&pcie1_port0 {
+	pcie@0,0 {
+		pcie@3,0 {
+			adv_tc9563_pf0: pci@0,0 {
+				gpio-controller;
+				#gpio-cells = <2>;
+
+				phy-mode = "sgmii";
+				phy-reset-gpios = <&adv_tc9563_pf0 0 GPIO_ACTIVE_LOW>;
+				reset-deassert-us = <221000>;
+
+				interrupts-extended = <&tlmm 130 IRQ_TYPE_EDGE_FALLING>;
+				interrupt-names = "wol_irq";
+				pinctrl-names = "default";
+				pinctrl-0 = <&adv_eth0_wol>;
+			};
+
+			pci@0,1 {
+				phy-mode = "rgmii-id";
+				phy-reset-gpios = <&adv_tc9563_pf0 1 GPIO_ACTIVE_LOW>;
+				reset-deassert-us = <221000>;
+
+				interrupts-extended = <&tlmm 131 IRQ_TYPE_EDGE_FALLING>;
+				interrupt-names = "wol_irq";
+				pinctrl-names = "default";
+				pinctrl-0 = <&adv_eth1_wol>;
+			};
+		};
+	};
+};

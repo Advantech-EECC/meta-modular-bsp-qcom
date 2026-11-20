@@ -1,0 +1,9 @@
+/dts-v1/;
+/plugin/;
+
+// Requires qcs6490-aom5721-uarts.dtso
+
+&uart10 {
+    linux,rs485-enabled-at-boot-time;
+    rs485-rts-active-low;
+};

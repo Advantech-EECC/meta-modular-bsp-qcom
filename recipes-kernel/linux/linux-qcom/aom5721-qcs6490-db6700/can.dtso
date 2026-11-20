@@ -1,0 +1,53 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/gpio/gpio.h>
+
+&tlmm {
+	aom_can0_irq: aom-can0-irq-state {
+		pins = "gpio150";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	aom_can1_irq: aom-can1-irq-state {
+		pins = "gpio151";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+};
+
+&spi13 {
+	status = "okay";
+
+	can0: can@0 {
+		compatible = "microchip,mcp2518fd";
+		reg = <0>;
+		clocks = <&mcp2518fd_osc>;
+		spi-max-frequency = <20000000>;
+		status = "okay";
+
+		pinctrl-names = "default";
+		interrupts-extended = <&tlmm 150 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-0 = <&aom_can0_irq>;
+	};
+};
+
+&spi14 {
+	status = "okay";
+
+	can1: can@0 {
+		compatible = "microchip,mcp2518fd";
+		reg = <0>;
+		clocks = <&mcp2518fd_osc>;
+		spi-max-frequency = <20000000>;
+		status = "okay";
+
+		pinctrl-names = "default";
+		interrupts-extended = <&tlmm 151 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-0 = <&aom_can1_irq>;
+	};
+};
